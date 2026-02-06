@@ -1,30 +1,7 @@
-function lineLength(line, number) {
-return line.length <= number;
-}
+const getRandomInteger = (min, max) =>
+  Math.floor(Math.random() * (max - min + 1)) + min;
 
-function lineSimile(line) {
-line = line.toLowerCase();
-line = line.replaceAll(" ", "");
+const getRandomArrayElement = (elements) =>
+  elements[getRandomInteger(0, elements.length - 1)];
 
-let newStroke = "";
-for (let check = line.length - 1; check >= 0; check--) {
-  newStroke += line[check];
-}
-  return line === newStroke;
-
-}
-
-function strokeSimile(stroke) {
-   stroke = stroke.toString();
-   let newStroke = "";
-
-for (let check = 0; check < stroke.length; check++) {
-
-if (!Number.isNaN(parseInt(stroke[check]))) {
-    newStroke = newStroke + stroke[check];
-}
-
-}
-return parseInt(newStroke);
-
-}
+export { getRandomInteger, getRandomArrayElement };
