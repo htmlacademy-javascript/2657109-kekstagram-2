@@ -1,10 +1,10 @@
-import { NAMES, MESSAGES } from "./data.js";
-import { getRandomInteger, getRandomArrayElement } from "./functions.js";
+import { NAMES, MESSAGES } from './data.js';
+import { getRandomInteger, getRandomArrayElement } from './functions.js';
 import {
   MIN_AVATAR_NUMBER,
   MAX_AVATAR_NUMBER,
   MAX_COMMENTS,
-} from "./constants.js";
+} from './constants.js';
 
 const generateComments = () => {
   let commentId = 1;
