@@ -1,0 +1,17 @@
+const MIN_AVATAR_NUMBER = 1;
+const MAX_AVATAR_NUMBER = 6;
+
+const MIN_LIKES = 15;
+const MAX_LIKES = 200;
+
+const MAX_COMMENTS = 30;
+const PHOTO_COUNT = 25;
+
+export {
+  MIN_AVATAR_NUMBER,
+  MAX_AVATAR_NUMBER,
+  MIN_LIKES,
+  MAX_LIKES,
+  MAX_COMMENTS,
+  PHOTO_COUNT,
+};
