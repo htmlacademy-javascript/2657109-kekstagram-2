@@ -1,6 +1,8 @@
-const bigPictureElement = document.querySelector('.big-picture');
+import { isEscapeKey } from './util.js';
+
 const COMMENT_AVATAR_SIZE = 35;
 const COMMENTS_BATCH_SIZE = 5;
+const bigPictureElement = document.querySelector('.big-picture');
 const bigPictureImage = bigPictureElement.querySelector('.big-picture__img img');
 const likesCountElement = bigPictureElement.querySelector('.likes-count');
 const socialCommentShownCountElement = bigPictureElement.querySelector(
@@ -64,7 +66,7 @@ const onCommentsLoaderClick = () => {
 };
 
 const onDocumentKeydown = (evt) => {
-  if (evt.key === 'Escape') {
+  if (isEscapeKey(evt)) {
     evt.preventDefault();
     closeBigPicture();
   }
