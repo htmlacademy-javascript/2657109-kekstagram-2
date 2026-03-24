@@ -1,20 +1,5 @@
 import { isEscapeKey } from './util.js';
 
-const uploadFormElement = document.querySelector('.img-upload__form');
-const uploadFileElement = uploadFormElement.querySelector('#upload-file');
-const uploadOverlayElement = uploadFormElement.querySelector('.img-upload__overlay');
-const uploadCancelElement = uploadFormElement.querySelector('#upload-cancel');
-const scaleSmallerElement = uploadFormElement.querySelector('.scale__control--smaller');
-const scaleBiggerElement = uploadFormElement.querySelector('.scale__control--bigger');
-const scaleValueElement = uploadFormElement.querySelector('.scale__control--value');
-const effectsListElement = uploadFormElement.querySelector('.effects__list');
-const effectLevelContainerElement = uploadFormElement.querySelector('.img-upload__effect-level');
-const effectLevelSliderElement = uploadFormElement.querySelector('.effect-level__slider');
-const effectLevelValueElement = uploadFormElement.querySelector('.effect-level__value');
-const uploadPreviewImageElement = uploadFormElement.querySelector('.img-upload__preview img');
-const hashtagsElement = uploadFormElement.querySelector('.text__hashtags');
-const descriptionElement = uploadFormElement.querySelector('.text__description');
-
 const MAX_HASHTAGS_COUNT = 5;
 const MAX_DESCRIPTION_LENGTH = 140;
 const HASHTAG_REGEXP = /^#[a-zа-яё0-9]{1,19}$/i;
@@ -22,6 +7,13 @@ const DEFAULT_SCALE = 100;
 const SCALE_STEP = 25;
 const MIN_SCALE = 25;
 const MAX_SCALE = 100;
+const MESSAGE_SELECTOR = '.success, .error';
+const SEND_DATA_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
+
+const SubmitButtonText = {
+  IDLE: 'Опубликовать',
+  SENDING: 'Публикую...',
+};
 
 const EFFECTS = {
   none: {
@@ -67,6 +59,39 @@ const EFFECTS = {
     unit: '',
   },
 };
+
+const sendData = (body) =>
+  fetch(SEND_DATA_URL, {
+    method: 'POST',
+    body,
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error();
+    }
+  });
+
+const uploadFormElement = document.querySelector('.img-upload__form');
+const uploadFileElement = uploadFormElement.querySelector('#upload-file');
+const uploadOverlayElement = uploadFormElement.querySelector('.img-upload__overlay');
+const uploadCancelElement = uploadFormElement.querySelector('#upload-cancel');
+const submitButtonElement = uploadFormElement.querySelector('.img-upload__submit');
+const scaleSmallerElement = uploadFormElement.querySelector('.scale__control--smaller');
+const scaleBiggerElement = uploadFormElement.querySelector('.scale__control--bigger');
+const scaleValueElement = uploadFormElement.querySelector('.scale__control--value');
+const effectsListElement = uploadFormElement.querySelector('.effects__list');
+const effectNoneElement = uploadFormElement.querySelector('#effect-none');
+const effectLevelContainerElement = uploadFormElement.querySelector('.img-upload__effect-level');
+const effectLevelSliderElement = uploadFormElement.querySelector('.effect-level__slider');
+const effectLevelValueElement = uploadFormElement.querySelector('.effect-level__value');
+const uploadPreviewImageElement = uploadFormElement.querySelector('.img-upload__preview img');
+const hashtagsElement = uploadFormElement.querySelector('.text__hashtags');
+const descriptionElement = uploadFormElement.querySelector('.text__description');
+const successTemplateElement = document
+  .querySelector('#success')
+  .content.querySelector('.success');
+const errorTemplateElement = document
+  .querySelector('#error')
+  .content.querySelector('.error');
 
 let currentEffect = EFFECTS.none;
 
@@ -120,9 +145,22 @@ const isTextFieldFocused = () =>
   document.activeElement === hashtagsElement ||
   document.activeElement === descriptionElement;
 
+const isMessageOpen = () => document.querySelector(MESSAGE_SELECTOR) !== null;
+
+const toggleSubmitButtonState = (isDisabled) => {
+  submitButtonElement.disabled = isDisabled;
+  submitButtonElement.textContent = isDisabled
+    ? SubmitButtonText.SENDING
+    : SubmitButtonText.IDLE;
+};
+
 const applyScale = (scaleValue) => {
   scaleValueElement.value = `${scaleValue}%`;
   uploadPreviewImageElement.style.transform = `scale(${scaleValue / 100})`;
+};
+
+const resetScale = () => {
+  applyScale(DEFAULT_SCALE);
 };
 
 const onScaleSmallerClick = () => {
@@ -163,13 +201,11 @@ const updateSliderOptions = () => {
 };
 
 const onEffectChange = (evt) => {
-  const target = evt.target;
-
-  if (!target.classList.contains('effects__radio')) {
+  if (!evt.target.classList.contains('effects__radio')) {
     return;
   }
 
-  currentEffect = EFFECTS[target.value];
+  currentEffect = EFFECTS[evt.target.value];
   updateSliderOptions();
 };
 
@@ -177,29 +213,71 @@ const resetEffects = () => {
   currentEffect = EFFECTS.none;
   uploadPreviewImageElement.style.filter = 'none';
   effectLevelValueElement.value = '';
-  uploadFormElement.querySelector('#effect-none').checked = true;
+  effectNoneElement.checked = true;
   updateSliderOptions();
+};
+
+const resetUploadFormState = () => {
+  uploadFormElement.reset();
+  pristine.reset();
+  uploadFileElement.value = '';
+  resetScale();
+  resetEffects();
 };
 
 const closeUploadForm = () => {
   uploadOverlayElement.classList.add('hidden');
   document.body.classList.remove('modal-open');
   document.removeEventListener('keydown', onDocumentKeydown);
-  uploadFormElement.reset();
-  pristine.reset();
-  uploadFileElement.value = '';
+  resetUploadFormState();
 };
 
 const openUploadForm = () => {
   uploadOverlayElement.classList.remove('hidden');
   document.body.classList.add('modal-open');
   document.addEventListener('keydown', onDocumentKeydown);
-  applyScale(DEFAULT_SCALE);
+  resetScale();
   resetEffects();
 };
 
+const showMessage = (templateElement, innerSelector, buttonSelector) => {
+  const messageElement = templateElement.cloneNode(true);
+  const messageInnerElement = messageElement.querySelector(innerSelector);
+  const messageButtonElement = messageElement.querySelector(buttonSelector);
+
+  const closeMessage = () => {
+    messageElement.remove();
+    document.removeEventListener('keydown', onDocumentMessageKeydown);
+    document.removeEventListener('click', onDocumentMessageClick);
+  };
+
+  function onDocumentMessageKeydown(evt) {
+    if (isEscapeKey(evt)) {
+      evt.preventDefault();
+      closeMessage();
+    }
+  }
+
+  function onDocumentMessageClick(evt) {
+    if (!messageInnerElement.contains(evt.target)) {
+      closeMessage();
+    }
+  }
+
+  messageButtonElement.addEventListener('click', closeMessage);
+  document.addEventListener('keydown', onDocumentMessageKeydown);
+  document.addEventListener('click', onDocumentMessageClick);
+  document.body.append(messageElement);
+};
+
+const showSuccessMessage = () =>
+  showMessage(successTemplateElement, '.success__inner', '.success__button');
+
+const showErrorMessage = () =>
+  showMessage(errorTemplateElement, '.error__inner', '.error__button');
+
 function onDocumentKeydown(evt) {
-  if (isEscapeKey(evt) && !isTextFieldFocused()) {
+  if (isEscapeKey(evt) && !isTextFieldFocused() && !isMessageOpen()) {
     evt.preventDefault();
     closeUploadForm();
   }
@@ -216,11 +294,24 @@ const onUploadFileChange = () => {
 };
 
 const onUploadFormSubmit = (evt) => {
-  const isValid = pristine.validate();
+  evt.preventDefault();
 
-  if (!isValid) {
-    evt.preventDefault();
+  if (!pristine.validate()) {
+    return;
   }
+
+  toggleSubmitButtonState(true);
+  sendData(new FormData(uploadFormElement))
+    .then(() => {
+      closeUploadForm();
+      showSuccessMessage();
+    })
+    .catch(() => {
+      showErrorMessage();
+    })
+    .finally(() => {
+      toggleSubmitButtonState(false);
+    });
 };
 
 const initUploadForm = () => {
@@ -250,7 +341,7 @@ const initUploadForm = () => {
   effectsListElement.addEventListener('change', onEffectChange);
   uploadFormElement.addEventListener('submit', onUploadFormSubmit);
 
-  applyScale(DEFAULT_SCALE);
+  resetScale();
   resetEffects();
 };
 
