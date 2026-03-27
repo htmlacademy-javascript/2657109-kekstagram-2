@@ -1,3 +1,4 @@
+import { sendData } from './api.js';
 import { isEscapeKey } from './util.js';
 
 const MAX_HASHTAGS_COUNT = 5;
@@ -8,9 +9,8 @@ const SCALE_STEP = 25;
 const MIN_SCALE = 25;
 const MAX_SCALE = 100;
 const MESSAGE_SELECTOR = '.success, .error';
-const SEND_DATA_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
 
-const SubmitButtonText = {
+const SUBMIT_BUTTON_TEXT = {
   IDLE: 'Опубликовать',
   SENDING: 'Публикую...',
 };
@@ -59,16 +59,6 @@ const EFFECTS = {
     unit: '',
   },
 };
-
-const sendData = (body) =>
-  fetch(SEND_DATA_URL, {
-    method: 'POST',
-    body,
-  }).then((response) => {
-    if (!response.ok) {
-      throw new Error();
-    }
-  });
 
 const uploadFormElement = document.querySelector('.img-upload__form');
 const uploadFileElement = uploadFormElement.querySelector('#upload-file');
@@ -150,8 +140,8 @@ const isMessageOpen = () => document.querySelector(MESSAGE_SELECTOR) !== null;
 const toggleSubmitButtonState = (isDisabled) => {
   submitButtonElement.disabled = isDisabled;
   submitButtonElement.textContent = isDisabled
-    ? SubmitButtonText.SENDING
-    : SubmitButtonText.IDLE;
+    ? SUBMIT_BUTTON_TEXT.SENDING
+    : SUBMIT_BUTTON_TEXT.IDLE;
 };
 
 const applyScale = (scaleValue) => {
@@ -283,7 +273,8 @@ function onDocumentKeydown(evt) {
   }
 }
 
-const onUploadCancelClick = () => {
+const onUploadCancelClick = (evt) => {
+  evt.preventDefault();
   closeUploadForm();
 };
 
