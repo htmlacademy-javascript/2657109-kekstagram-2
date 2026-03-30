@@ -230,7 +230,7 @@ const openUploadForm = () => {
   resetEffects();
 };
 
-const showMessage = (templateElement, innerSelector, buttonSelector) => {
+const showMessage = ({ templateElement, innerSelector, buttonSelector }) => {
   const messageElement = templateElement.cloneNode(true);
   const messageInnerElement = messageElement.querySelector(innerSelector);
   const messageButtonElement = messageElement.querySelector(buttonSelector);
@@ -261,10 +261,18 @@ const showMessage = (templateElement, innerSelector, buttonSelector) => {
 };
 
 const showSuccessMessage = () =>
-  showMessage(successTemplateElement, '.success__inner', '.success__button');
+  showMessage({
+    templateElement: successTemplateElement,
+    innerSelector: '.success__inner',
+    buttonSelector: '.success__button',
+  });
 
 const showErrorMessage = () =>
-  showMessage(errorTemplateElement, '.error__inner', '.error__button');
+  showMessage({
+    templateElement: errorTemplateElement,
+    innerSelector: '.error__inner',
+    buttonSelector: '.error__button',
+  });
 
 function onDocumentKeydown(evt) {
   if (isEscapeKey(evt) && !isTextFieldFocused() && !isMessageOpen()) {

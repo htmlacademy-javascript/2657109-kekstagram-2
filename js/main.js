@@ -1,4 +1,5 @@
 import { getData } from './api.js';
+import { initFilters } from './filters.js';
 import { renderPictures } from './pictures.js';
 import { initUploadForm } from './upload-form.js';
 
@@ -19,6 +20,7 @@ const showDataError = () => {
 getData()
   .then((photos) => {
     renderPictures(photos);
+    initFilters(photos);
   })
   .catch(() => {
     showDataError();
