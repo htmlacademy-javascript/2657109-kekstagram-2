@@ -4,8 +4,11 @@ const picturesContainer = document.querySelector('.pictures');
 const pictureTemplate = document
   .querySelector('#picture')
   .content.querySelector('.picture');
+const pictureElements = () => picturesContainer.querySelectorAll('.picture');
 
 function renderPictures(photos) {
+  pictureElements().forEach((pictureElement) => pictureElement.remove());
+
   const fragment = document.createDocumentFragment();
 
   photos.forEach((photo) => {

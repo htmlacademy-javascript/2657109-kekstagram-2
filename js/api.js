@@ -1,6 +1,4 @@
-const REMOTE_BASE_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
-const LOCAL_BASE_URL = '/kekstagram';
-const BASE_URL = import.meta.env?.DEV ? LOCAL_BASE_URL : REMOTE_BASE_URL;
+const BASE_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
 const DATA_URL = `${BASE_URL}/data`;
 const REQUEST_TIMEOUT = 5000;
 
