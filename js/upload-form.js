@@ -9,6 +9,7 @@ const SCALE_STEP = 25;
 const MIN_SCALE = 25;
 const MAX_SCALE = 100;
 const MESSAGE_SELECTOR = '.success, .error';
+const FILE_TYPES = ['jpg', 'jpeg', 'png', 'webp'];
 
 const SUBMIT_BUTTON_TEXT = {
   IDLE: 'Опубликовать',
@@ -74,6 +75,7 @@ const effectLevelContainerElement = uploadFormElement.querySelector('.img-upload
 const effectLevelSliderElement = uploadFormElement.querySelector('.effect-level__slider');
 const effectLevelValueElement = uploadFormElement.querySelector('.effect-level__value');
 const uploadPreviewImageElement = uploadFormElement.querySelector('.img-upload__preview img');
+const effectPreviewElements = uploadFormElement.querySelectorAll('.effects__preview');
 const hashtagsElement = uploadFormElement.querySelector('.text__hashtags');
 const descriptionElement = uploadFormElement.querySelector('.text__description');
 const successTemplateElement = document
@@ -84,6 +86,8 @@ const errorTemplateElement = document
   .content.querySelector('.error');
 
 let currentEffect = EFFECTS.none;
+const defaultPreviewImageSource = uploadPreviewImageElement.src;
+let currentPreviewImageUrl = null;
 
 const pristine = new Pristine(uploadFormElement, {
   classTo: 'img-upload__field-wrapper',
@@ -142,6 +146,45 @@ const toggleSubmitButtonState = (isDisabled) => {
   submitButtonElement.textContent = isDisabled
     ? SUBMIT_BUTTON_TEXT.SENDING
     : SUBMIT_BUTTON_TEXT.IDLE;
+};
+
+const updatePreviewImage = () => {
+  const file = uploadFileElement.files[0];
+
+  if (!file) {
+    return;
+  }
+
+  const fileName = file.name.toLowerCase();
+  const matchesFileType = FILE_TYPES.some((fileType) => fileName.endsWith(`.${fileType}`));
+
+  if (!matchesFileType) {
+    return;
+  }
+
+  if (currentPreviewImageUrl) {
+    URL.revokeObjectURL(currentPreviewImageUrl);
+  }
+
+  const previewImageUrl = URL.createObjectURL(file);
+  currentPreviewImageUrl = previewImageUrl;
+
+  uploadPreviewImageElement.src = previewImageUrl;
+  effectPreviewElements.forEach((effectPreviewElement) => {
+    effectPreviewElement.style.backgroundImage = `url("${previewImageUrl}")`;
+  });
+};
+
+const resetPreviewImage = () => {
+  if (currentPreviewImageUrl) {
+    URL.revokeObjectURL(currentPreviewImageUrl);
+    currentPreviewImageUrl = null;
+  }
+
+  uploadPreviewImageElement.src = defaultPreviewImageSource;
+  effectPreviewElements.forEach((effectPreviewElement) => {
+    effectPreviewElement.style.backgroundImage = '';
+  });
 };
 
 const applyScale = (scaleValue) => {
@@ -211,6 +254,7 @@ const resetUploadFormState = () => {
   uploadFormElement.reset();
   pristine.reset();
   uploadFileElement.value = '';
+  resetPreviewImage();
   resetScale();
   resetEffects();
 };
@@ -288,6 +332,7 @@ const onUploadCancelClick = (evt) => {
 
 const onUploadFileChange = () => {
   if (uploadFileElement.files.length > 0) {
+    updatePreviewImage();
     openUploadForm();
   }
 };
