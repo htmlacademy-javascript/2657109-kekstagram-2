@@ -143,10 +143,17 @@ const isMessageOpen = () => document.querySelector(MESSAGE_SELECTOR) !== null;
 
 const toggleSubmitButtonState = (isDisabled) => {
   submitButtonElement.disabled = isDisabled;
+  if (isDisabled) {
+    submitButtonElement.setAttribute('disabled', 'disabled');
+  } else {
+    submitButtonElement.removeAttribute('disabled');
+  }
   submitButtonElement.textContent = isDisabled
     ? SUBMIT_BUTTON_TEXT.SENDING
     : SUBMIT_BUTTON_TEXT.IDLE;
 };
+
+const normalizeSliderValue = (value) => Number(value).toString();
 
 const updatePreviewImage = () => {
   const file = uploadFileElement.files[0];
@@ -267,6 +274,7 @@ const closeUploadForm = () => {
 };
 
 const openUploadForm = () => {
+  toggleSubmitButtonState(false);
   uploadOverlayElement.classList.remove('hidden');
   document.body.classList.add('modal-open');
   document.addEventListener('keydown', onDocumentKeydown);
@@ -351,10 +359,8 @@ const onUploadFormSubmit = (evt) => {
       showSuccessMessage();
     })
     .catch(() => {
-      showErrorMessage();
-    })
-    .finally(() => {
       toggleSubmitButtonState(false);
+      showErrorMessage();
     });
 };
 
@@ -370,7 +376,7 @@ const initUploadForm = () => {
   });
 
   effectLevelSliderElement.noUiSlider.on('update', () => {
-    const sliderValue = effectLevelSliderElement.noUiSlider.get();
+    const sliderValue = normalizeSliderValue(effectLevelSliderElement.noUiSlider.get());
     effectLevelValueElement.value = sliderValue;
     uploadPreviewImageElement.style.filter =
       currentEffect === EFFECTS.none
