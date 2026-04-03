@@ -52,9 +52,7 @@ const setActiveFilterButton = (activeButton) => {
 const initFilters = (photos) => {
   const debouncedRenderPictures = debounce(renderPictures, RERENDER_DELAY);
 
-  filtersElement.classList.remove('img-filters--inactive');
-
-  filtersFormElement.addEventListener('click', (evt) => {
+  const onFiltersFormClick = (evt) => {
     const targetButton = evt.target.closest('.img-filters__button');
 
     if (!targetButton || targetButton.classList.contains('img-filters__button--active')) {
@@ -63,7 +61,10 @@ const initFilters = (photos) => {
 
     setActiveFilterButton(targetButton);
     debouncedRenderPictures(getFilteredPhotos(photos, targetButton.id));
-  });
+  };
+
+  filtersElement.classList.remove('img-filters--inactive');
+  filtersFormElement.addEventListener('click', onFiltersFormClick);
 };
 
 export { initFilters };
