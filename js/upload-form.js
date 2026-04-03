@@ -274,6 +274,7 @@ const closeUploadForm = () => {
 };
 
 const openUploadForm = () => {
+  toggleSubmitButtonState(false);
   uploadOverlayElement.classList.remove('hidden');
   document.body.classList.add('modal-open');
   document.addEventListener('keydown', onDocumentKeydown);
@@ -358,10 +359,8 @@ const onUploadFormSubmit = (evt) => {
       showSuccessMessage();
     })
     .catch(() => {
-      showErrorMessage();
-    })
-    .finally(() => {
       toggleSubmitButtonState(false);
+      showErrorMessage();
     });
 };
 
