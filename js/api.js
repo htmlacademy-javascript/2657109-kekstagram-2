@@ -1,6 +1,6 @@
 const BASE_URL = 'https://31.javascript.htmlacademy.pro/kekstagram';
 const DATA_URL = `${BASE_URL}/data`;
-const REQUEST_TIMEOUT = 5000;
+const POST_URL = `${BASE_URL}/`;
 
 const checkResponse = (response) => {
   if (!response.ok) {
@@ -10,24 +10,12 @@ const checkResponse = (response) => {
   return response;
 };
 
-const load = (url, options = {}) => {
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT);
-
-  return fetch(url, {
-    ...options,
-    signal: controller.signal,
-  })
-    .then(checkResponse)
-    .finally(() => {
-      clearTimeout(timeoutId);
-    });
-};
+const load = (url, options = {}) => fetch(url, options).then(checkResponse);
 
 const getData = () => load(DATA_URL).then((response) => response.json());
 
 const sendData = (body) =>
-  load(BASE_URL, {
+  load(POST_URL, {
     method: 'POST',
     body,
   });
