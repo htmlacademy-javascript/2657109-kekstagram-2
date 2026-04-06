@@ -287,28 +287,32 @@ const showMessage = ({ templateElement, innerSelector, buttonSelector }) => {
   const messageInnerElement = messageElement.querySelector(innerSelector);
   const messageButtonElement = messageElement.querySelector(buttonSelector);
 
-  const closeMessage = () => {
+  const removeMessage = () => {
     messageElement.remove();
     document.removeEventListener('keydown', onDocumentMessageKeydown);
-    document.removeEventListener('click', onDocumentMessageClick);
+    messageElement.removeEventListener('click', onMessageOverlayClick);
   };
 
   function onDocumentMessageKeydown(evt) {
     if (isEscapeKey(evt)) {
       evt.preventDefault();
-      closeMessage();
+      removeMessage();
     }
   }
 
-  function onDocumentMessageClick(evt) {
+  function onMessageOverlayClick(evt) {
     if (!messageInnerElement.contains(evt.target)) {
-      closeMessage();
+      removeMessage();
     }
   }
 
-  messageButtonElement.addEventListener('click', closeMessage);
+  const onMessageButtonClick = () => {
+    removeMessage();
+  };
+
+  messageButtonElement.addEventListener('click', onMessageButtonClick);
   document.addEventListener('keydown', onDocumentMessageKeydown);
-  document.addEventListener('click', onDocumentMessageClick);
+  messageElement.addEventListener('click', onMessageOverlayClick);
   document.body.append(messageElement);
 };
 
@@ -364,6 +368,15 @@ const onUploadFormSubmit = (evt) => {
     });
 };
 
+const onEffectLevelSliderUpdate = () => {
+  const sliderValue = normalizeSliderValue(effectLevelSliderElement.noUiSlider.get());
+  effectLevelValueElement.value = sliderValue;
+  uploadPreviewImageElement.style.filter =
+    currentEffect === EFFECTS.none
+      ? 'none'
+      : `${currentEffect.filter}(${sliderValue}${currentEffect.unit})`;
+};
+
 const initUploadForm = () => {
   window.noUiSlider.create(effectLevelSliderElement, {
     range: {
@@ -375,14 +388,7 @@ const initUploadForm = () => {
     connect: 'lower',
   });
 
-  effectLevelSliderElement.noUiSlider.on('update', () => {
-    const sliderValue = normalizeSliderValue(effectLevelSliderElement.noUiSlider.get());
-    effectLevelValueElement.value = sliderValue;
-    uploadPreviewImageElement.style.filter =
-      currentEffect === EFFECTS.none
-        ? 'none'
-        : `${currentEffect.filter}(${sliderValue}${currentEffect.unit})`;
-  });
+  effectLevelSliderElement.noUiSlider.on('update', onEffectLevelSliderUpdate);
 
   uploadFileElement.addEventListener('change', onUploadFileChange);
   uploadCancelElement.addEventListener('click', onUploadCancelClick);

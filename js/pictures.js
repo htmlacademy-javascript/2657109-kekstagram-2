@@ -23,7 +23,6 @@ function renderPictures(photos) {
     pictureLikesElement.textContent = photo.likes;
     pictureCommentsElement.textContent = commentsCount;
 
-    // Добавлено: открываем полноразмерный просмотр по клику на миниатюру.
     const onPictureClick = (evt) => {
       evt.preventDefault();
       openBigPicture(photo);

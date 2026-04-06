@@ -84,14 +84,12 @@ function openBigPicture(photo) {
   socialCaptionElement.textContent = photo.description;
   socialCommentTotalCountElement.textContent = photo.comments.length;
 
-  // Добавлено: на каждый запуск начинаем показ комментариев заново порциями по 5.
   currentPhotoComments = photo.comments;
   renderedCommentsCount = 0;
   socialCommentShownCountElement.textContent = renderedCommentsCount;
   socialCommentsElement.innerHTML = '';
   renderCommentsBatch();
 
-  // Добавлено: закрытие по клавише Esc.
   document.removeEventListener('keydown', onDocumentKeydown);
   document.addEventListener('keydown', onDocumentKeydown);
 }
@@ -102,7 +100,6 @@ function closeBigPicture() {
   document.removeEventListener('keydown', onDocumentKeydown);
 }
 
-// Добавлено: закрытие по клику на кнопку-крестик.
 const onCloseButtonClick = () => {
   closeBigPicture();
 };
